@@ -1,37 +1,33 @@
-x_in=0.5+xmax*t_in.*cos(2*pi*t_in);
-y_in=0.5+ymax*sin(2*pi*t_in);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-allSamples{1}=txy; allDown{1}=txydown;
+nsamp=0;
 
-x_in=0.5+xmax*t_in.*cos(2*pi*t_in+pi/2);
-y_in=0.5+ymax*sin(2*pi*t_in+pi/2);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-allSamples{2}=txy; allDown{2}=txydown;
-
-x_in=0.5+xmax*t_in.*cos(2*pi*t_in+pi/4);
-y_in=0.5+ymax*sin(2*pi*t_in+pi/4);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-allSamples{3}=txy; allDown{3}=txydown;
-
-x_in=-0.5+xmax*t_in.*cos(2*pi*t_in);
-y_in=0.5+ymax*sin(2*pi*t_in);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-dt_down=max(t_in)/(length(txydown)-1);
-t_samp=(0:dt_down:max(t_in))';
-allSamples{4}=txy; allDown{4}=txydown;
-
-x_in=-0.5+xmax*t_in.*cos(2*pi*t_in+pi/2);
-y_in=0.5+ymax*sin(2*pi*t_in+pi/2);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-allSamples{5}=txy; allDown{5}=txydown;
-
-x_in=-0.5+xmax*t_in.*cos(2*pi*t_in+pi/4);
-y_in=0.5+ymax*sin(2*pi*t_in+pi/4);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-allSamples{6}=txy; allDown{6}=txydown;
+%gen spirals
+fxvec=[1.5*pi 2*pi 2.5*pi];
+fyvec=fxvec;
+xmaxvec=[0.1 0.2 0.3 0.4];
+ymaxvec=xmaxvec;
+dphixvec=[0 pi/4 pi/2];
+dphiyvec=dphixvec;
+for i1=1:length(fxvec)
+    fx=fxvec(i1);
+    for i2=1:length(fyvec)
+        fy=fyvec(i2);
+        for i3=1:length(xmaxvec)
+            xmax=xmaxvec(i3);
+            for i4=1:length(ymaxvec)
+                ymax=ymaxvec(i4);
+                for i5=1:length(dphixvec)
+                    dphix=dphixvec(i5);
+                    for i6=1:length(dphiyvec)
+                        dphiy=dphiyvec(i6);
+                        x_in=0.5+xmax*t_in.*cos(fx*t_in+dphix);
+                        y_in=0.5+ymax*sin(fy*t_in+dphiy);
+                        txy=[x_in y_in];
+                        txydown=downsample(txy,5);
+                        nsamp=nsamp+1;
+                        allSamples{nsamp}=txy; allDown{nsamp}=txydown;
+                    end
+                end
+            end
+        end
+    end
+end

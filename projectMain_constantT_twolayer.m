@@ -3,6 +3,8 @@ clear;clc;
 
 %run trajectory on a range from 0.1 to 0.9
 
+rng(1)
+
 xmax=0.2;
 ymax=0.4;
 tmax=10;
@@ -17,13 +19,13 @@ t_samp=(0:dt_down:max(t_in))';
 %y_in=0.1+[linspace(0,ymax,25)'; ymax*ones(25,1); linspace(ymax,0,25)'; zeros(25,1); 0];
 
 %might want to just make the example array a separate file to avoid clutter
-training_examples.m
+training_examples
 
 %weighting matrix
 mismSize=61;
-n1start=0.5; n2start=0.05;
+n1start=0.6; n2start=0.02;
 nmat1=n1start*rand(101,mismSize)-n1start/2;
-nmat2=n2start*rand(mismSize,21)-n2start/2;
+nmat2=n2start*randn(mismSize,21)-n2start/2;
 % nmat=nmat';
 % nmat(1,:)=[1 zeros(1,100)];
 % noff=0;
@@ -33,8 +35,8 @@ nmat2=n2start*rand(mismSize,21)-n2start/2;
 % nmat(21,:)=[zeros(1,100) 1];
 % nmat=nmat';
 
-a1=0.01;
-a2=0.01;
+a1=0.015;
+a2=0.017;
 
 % figure(1);clf;
 % plot(txy(:,1),txy(:,2));
@@ -43,16 +45,15 @@ lenn=length(allSamples);
 
 for i=1:10000
     
-    %choose training sample every N steps
     n=randsample(lenn,1);
     txy=allSamples{n};
     txydown=allDown{n};
     
-	%L1=f(nmat'*txy);
+    %L1=f(nmat'*txy);
     %L1=nmat'*txy;
     L1=f(nmat1')*txy;
     L2=f(nmat2')*L1;
-    [solCoeff,J]=callMinSnap2D([t_samp L2]);
+    [solCoeff,~]=callMinSnap2D([t_samp L2]);
     
 %     if min(diff(L1(:,1)))<0
 %         i
@@ -68,7 +69,8 @@ for i=1:10000
     dL1=nmat2*dL2.*fprime(L1);
     nmat2=nmat2+a2*L1*dL2';
 	nmat1=nmat1+a1*txy*dL1';
-    errAfterLearning=err
+    %errAfterLearning=err;
+    maxabserr=max(max(abs(err)))
     
 %     if max(max(abs(errAfterLearning)))<1e-8
 %         i
@@ -86,8 +88,30 @@ end
 % legend('Target','with NN');
 
 
+% n=1;
+% txy=allSamples{n};
+% txydown=allDown{n};
+x_in=0.5+0.35*t_in.*cos(2.1*pi*t_in+pi/3);
+y_in=0.5+0.25*sin(1.9*pi*t_in+0);
+txy=[x_in y_in];
+txydown=downsample(txy,5);
 
+%L1=f(nmat'*txy);
+%L1=nmat'*txy;
+L1=f(nmat1')*txy;
+L2=f(nmat2')*L1;
+[solCoeff,J]=callMinSnap2D([t_samp L2]);
 
+[xop,yop]=processSolCoeff(t_samp,solCoeff,dt_down);
+L2operated=[xop' yop'];  %mess with L1
+
+err=txydown-L2operated;
+dL2=err.*fprime(L2operated);
+dL1=nmat2*dL2.*fprime(L1);
+nmat2=nmat2+a2*L1*dL2';
+nmat1=nmat1+a1*txy*dL1';
+errAfterLearning=err
+maxErrAfterLearning=max(max(abs(err)))
 
 
 
