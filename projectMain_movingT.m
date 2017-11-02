@@ -23,8 +23,8 @@ t_samp=(0:dt_down:max(t_in))';
 %weighting matrix
 nmat=2*rand(101,21)-1;
 nmat=nmat';
-nmat(1,:)=[1 zeros(1,100)];
-noff=0;
+nmat(1,:)=[1 0*ones(1,100)];
+noff=1;
 for ijk=2:20
     nmat(ijk,:)=[zeros(1,5*(ijk-1)+noff) 1 zeros(1,100-5*(ijk-1)-noff)];
 end
@@ -40,7 +40,7 @@ for i=1:1000
     L1=nmat'*txy;
     %L1=f(nmat')*txy;
     L1sort = sortrows(L1,1);
-    [solCoeff,J]=callMinSnap2D(L1sort);
+    [solCoeff,J]=callMinSnap2D(L1sort,t_in);
     
 %     if min(diff(L1(:,1)))<0
 %         i
@@ -74,7 +74,7 @@ plot(L1operated(:,2),L1operated(:,3),'r')
 axis([0 1 0 1]);
 legend('Before','After');
 
-
+nmatBottomRightHandCorner=nmat(87:101,18:21)
 
 
 

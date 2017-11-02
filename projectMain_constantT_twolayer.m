@@ -21,8 +21,9 @@ t_samp=(0:dt_down:max(t_in))';
 %might want to just make the example array a separate file to avoid clutter
 training_examples
 
+
 %weighting matrix
-mismSize=61;
+mismSize=65;
 n1start=0.6; n2start=0.02;
 nmat1=n1start*rand(101,mismSize)-n1start/2;
 nmat2=n2start*randn(mismSize,21)-n2start/2;
@@ -40,10 +41,10 @@ a2=0.017;
 
 % figure(1);clf;
 % plot(txy(:,1),txy(:,2));
-
+subint=1;
 lenn=length(allSamples);
 
-for i=1:10000
+for i=1:1000
     
     n=randsample(lenn,1);
     txy=allSamples{n};
@@ -53,31 +54,31 @@ for i=1:10000
     %L1=nmat'*txy;
     L1=f(nmat1')*txy;
     L2=f(nmat2')*L1;
-    [solCoeff,~]=callMinSnap2D([t_samp L2]);
+    [solCoeff,~]=callMinSnap2D([t_samp L2],t_samp,subint);
     
-%     if min(diff(L1(:,1)))<0
-%         i
-%         fprintf('time error')
-%         break;  %if time ordering fails, then this example is done
-%     end
-    [xop,yop]=processSolCoeff(t_samp,solCoeff,dt_down);
-%    [xop,yop,~]=processSolCoeff(L1(:,1), solCoeff, max(L1(:,1))/20);
+    %     if min(diff(L1(:,1)))<0
+    %         i
+    %         fprintf('time error')
+    %         break;  %if time ordering fails, then this example is done
+    %     end
+    [xop,yop]=processSolCoeff(t_samp,solCoeff,0.05);
+    %    [xop,yop,~]=processSolCoeff(L1(:,1), solCoeff, max(L1(:,1))/20);
     L2operated=[xop' yop'];  %mess with L1
-
+    
     err=txydown-L2operated;
     dL2=err.*fprime(L2operated);
     dL1=nmat2*dL2.*fprime(L1);
     nmat2=nmat2+a2*L1*dL2';
-	nmat1=nmat1+a1*txy*dL1';
+    nmat1=nmat1+a1*txy*dL1';
     %errAfterLearning=err;
     maxabserr=max(max(abs(err)))
     
-%     if max(max(abs(errAfterLearning)))<1e-8
-%         i
-%         fprintf('state convergence')
-%         break;  %if sufficiently accurate; overtraining is a problem
-%     end
-	
+    %     if max(max(abs(errAfterLearning)))<1e-8
+    %         i
+    %         fprintf('state convergence')
+    %         break;  %if sufficiently accurate; overtraining is a problem
+    %     end
+    
 end
 % %f(nmat)'*txy
 % %errAfterLearning=err
@@ -88,30 +89,32 @@ end
 % legend('Target','with NN');
 
 
-% n=1;
-% txy=allSamples{n};
-% txydown=allDown{n};
-x_in=0.5+0.35*t_in.*cos(2.1*pi*t_in+pi/3);
-y_in=0.5+0.25*sin(1.9*pi*t_in+0);
-txy=[x_in y_in];
-txydown=downsample(txy,5);
-
-%L1=f(nmat'*txy);
-%L1=nmat'*txy;
-L1=f(nmat1')*txy;
-L2=f(nmat2')*L1;
-[solCoeff,J]=callMinSnap2D([t_samp L2]);
-
-[xop,yop]=processSolCoeff(t_samp,solCoeff,dt_down);
-L2operated=[xop' yop'];  %mess with L1
-
-err=txydown-L2operated;
-dL2=err.*fprime(L2operated);
-dL1=nmat2*dL2.*fprime(L1);
-nmat2=nmat2+a2*L1*dL2';
-nmat1=nmat1+a1*txy*dL1';
-errAfterLearning=err
-maxErrAfterLearning=max(max(abs(err)))
+% % n=1;
+% % txy=allSamples{n};
+% % txydown=allDown{n};
+% x_in=0.5+0.35*t_in.*cos(2.1*pi*t_in+pi/3);
+% y_in=0.5+0.25*sin(1.9*pi*t_in+0);
+% x_in=0.5+0.35*cos(2*pi*t_in);
+% y_in=0.5+0.35*sin(2*pi*t_in);
+% txy=[x_in y_in];
+% txydown=downsample(txy,5);
+% 
+% %L1=f(nmat'*txy);
+% %L1=nmat'*txy;
+% L1=f(nmat1')*txy;
+% L2=f(nmat2')*L1;
+% [solCoeff,J]=callMinSnap2D([t_samp L2]);
+% 
+% [xop,yop]=processSolCoeff(t_samp,solCoeff,dt_down);
+% L2operated=[xop' yop'];  %mess with L1
+% 
+% err=txydown-L2operated;
+% dL2=err.*fprime(L2operated);
+% dL1=nmat2*dL2.*fprime(L1);
+% nmat2=nmat2+a2*L1*dL2';
+% nmat1=nmat1+a1*txy*dL1';
+% errAfterLearning=err
+% maxErrAfterLearning=max(max(abs(err)))
 
 
 
