@@ -1,6 +1,6 @@
 function [solcoeffs,J] = callMinSnap2D(L1,t_w,subint)
 nn=length(t_w);
-lenL1=length(L1)
+lenL1=length(L1);
 
 if(subint==1)
     x_w=L1(:,2)';
