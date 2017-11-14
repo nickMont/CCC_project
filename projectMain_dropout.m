@@ -46,7 +46,13 @@ lenn=length(allSamples);
 
 randkeep=zeros(mismSize,1);
 randthresh=95/100;
-for i=1:10000
+
+maxsteps=1000;
+fprintf('\nTraining network\n====================\n');
+for i=1:maxsteps
+    if(mod(i-1,maxsteps/20)==0)
+        fprintf('=');
+    end
     
     randkeep=ones(mismSize,1);
     for j=1:mismSize
@@ -83,7 +89,7 @@ for i=1:10000
     nmat2(indkeep,:)=nmat2drop+a2*L1*dL2';
     nmat1(:,indkeep)=nmat1drop+a1*txy*dL1';
     %errAfterLearning=err;
-    maxabserr=max(max(abs(err)))
+    %maxabserr=max(max(abs(err)))
     
     %     if max(max(abs(errAfterLearning)))<1e-8
     %         i
@@ -113,7 +119,7 @@ txydown=downsample(txy,5);
 
 %L1=(1-randthresh)*f(nmat'*txy);
 %L1=nmat'*txy;
-L1=randthresh*f(nmat1')*txy;
+L1=f(nmat1')*txy;
 L2=randthresh*f(nmat2')*L1;
 [solCoeff,J]=callMinSnap2D([t_samp L2],t_samp,subint);
 

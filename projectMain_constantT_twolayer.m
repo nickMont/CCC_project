@@ -5,8 +5,6 @@ clear;clc;
 
 rng(1)
 
-xmax=0.2;
-ymax=0.4;
 tmax=10;
 t_in=1/tmax*linspace(0,tmax,101)';
 dt_default=min(diff(t_in));
@@ -44,7 +42,12 @@ a2=0.017;
 subint=1;
 lenn=length(allSamples);
 
-for i=1:1000
+maxsteps=10000;
+fprintf('\nTraining network\n====================\n');
+for i=1:maxsteps
+    if(mod(i-1,maxsteps/20)==0)
+        fprintf('=');
+    end
     
     n=randsample(lenn,1);
     txy=allSamples{n};
@@ -71,7 +74,7 @@ for i=1:1000
     nmat2=nmat2+a2*L1*dL2';
     nmat1=nmat1+a1*txy*dL1';
     %errAfterLearning=err;
-    maxabserr=max(max(abs(err)))
+    %maxabserr=max(max(abs(err)))
     
     %     if max(max(abs(errAfterLearning)))<1e-8
     %         i
@@ -116,5 +119,27 @@ end
 % errAfterLearning=err
 % maxErrAfterLearning=max(max(abs(err)))
 
+x_in=0.5+0.35*t_in.*cos(2.1*pi*t_in+pi/3);
+y_in=0.5+0.25*sin(1.9*pi*t_in+0);
+x_in=0.5+0.35*cos(2*pi*t_in);
+y_in=0.5+0.35*sin(2*pi*t_in);
+txy=[x_in y_in];
+txydown=downsample(txy,5);
 
+%L1=(1-randthresh)*f(nmat'*txy);
+%L1=nmat'*txy;
+L1=f(nmat1')*txy;
+L2=f(nmat2')*L1;
+[solCoeff,J]=callMinSnap2D([t_samp L2],t_samp,subint);
+
+[xop,yop]=processSolCoeff(t_samp,solCoeff,dt_down);
+L2operated=[xop' yop'];  %mess with L1
+
+err=txydown-L2operated;
+dL2=err.*fprime(L2operated);
+dL1=nmat2*dL2.*fprime(L1);
+nmat2=nmat2+a2*L1*dL2';
+nmat1=nmat1+a1*txy*dL1';
+errAfterLearning=err
+maxErrAfterLearning=max(max(abs(err)))
 
