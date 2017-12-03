@@ -12,7 +12,7 @@
 nsamp=0;
 
 %gen spirals
-fxvec=[1.5*pi 2*pi 2.5*pi];
+fxvec=[1.0*pi 1.5*pi 2*pi 2.5*pi 3*pi 3.5*pi];
 fyvec=fxvec;
 xmaxvec=[0.1 0.2 0.3 0.4];
 ymaxvec=xmaxvec;
@@ -46,9 +46,9 @@ end
 
 rmax=0.1;
 thetamax=pi/6;
-randmax=1000;
+randmax=20;
 fprintf('Initializing training examples\n====================\n');
-for j1=1:1000
+for j1=1:randmax
     if mod(j1-1,randmax/20)==0
        fprintf('=');
     end

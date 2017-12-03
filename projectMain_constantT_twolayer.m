@@ -136,10 +136,11 @@ L2=f(nmat2')*L1;
 L2operated=[xop' yop'];  %mess with L1
 
 err=txydown-L2operated;
-dL2=err.*fprime(L2operated);
-dL1=nmat2*dL2.*fprime(L1);
-nmat2=nmat2+a2*L1*dL2';
-nmat1=nmat1+a1*txy*dL1';
+% dL2=err.*fprime(L2operated);
+% dL1=nmat2*dL2.*fprime(L1);
+% nmat2=nmat2+a2*L1*dL2';
+% nmat1=nmat1+a1*txy*dL1';
 errAfterLearning=err
 maxErrAfterLearning=max(max(abs(err)))
 
+save nmats_circle nmat1 nmat2

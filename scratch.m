@@ -1,76 +1,45 @@
 clear;clc;
 
-% map=[0 0 0
-%     1 1 1];
-% mapStart=[1;1]; mapEnd=[1;3];
+load nmats
 
-% map=[0 0 0 0
-%     1 0 1 0
-%     1 0 1 0
-%     1 0 0 0];
-mapStart=[1;1;2]; mapEnd=[4;4;2];
+makeGifFlag=0; %1 to make gif, 0 else
+gifname='dumpgif.gif';
 
-mapFloor=[1 1 1 1
-          1 1 0 1
-          1 1 0 1
-          1 1 1 1];
-mapGame=[0 0 0 0
-         1 1 0 0
-         1 1 0 0
-         1 1 0 0];
-mapCeil=[1 1 1 1
-         1 1 1 1
-         1 1 1 1
-         1 1 1 1];
-map(:,:,1)=mapFloor;
-map(:,:,2)=mapGame;
-%map(:,:,2)=mapCeil;
+plotperformanceFlag=0;
 
-[a,b,c]=size(map);
-[c1,aVP1,~,~]=countPaths3D(map,zeros(size(map)),mapStart,mapEnd,0,[],{});
-%[c2,aVP2,~,~]=countPaths(map(:,:,2),zeros(4,4),mapStart(1:2),[4,4],0,[],{});
+%Will loop through quads->objects->walls
+numquads=1;
 
-%print solution pairs
-% if c1<=25
-%     for ii=1:c1
-%         avpTemp=aVP1{ii}
-%         %printmat=repmat('0',a,b);
-%         printmat=zeros(a,b);
-%         for ij=1:length(avpTemp)
-%             printmat(avpTemp(1,ij),avpTemp(2,ij))=1;
-%         end
-%         printmat
-%     end
-% end
-
-% %print the maze
-% for ij=0:a+1
-%     rowPrint='';
-%     for ik=0:b+1
-%         if (ij==0||ij==a+1)&&(ik==0||ik==b+1)
-%             rowPrint=[rowPrint '+'];
-%         elseif ij==0||ij==a+1
-%             rowPrint=[rowPrint '-'];
-%         elseif ik==0||ik==b+1
-%             rowPrint=[rowPrint '|'];
-%         else
-%             if map(ij,ik)==0
-%                 rowPrint=[rowPrint ' '];
-%             else
-%                 rowPrint=[rowPrint '#'];
-%             end
-%         end
-%     end
-%     fprintf(rowPrint);fprintf('\n');
-% end
+%PID position gains, calmer
+kp_x=.65;  %.75
+kd_x=2.95*kp_x;
+kI_x=.25*kp_x;
+kp_y=.35;  %1.1
+kd_y=.95*kp_y;
+kI_y=.075*kp_y;
+kp_p_z=2.2;
+kd_p_z=1.5*kp_p_z;
+kI_p_z=.075*kp_p_z;
 
 
+%draw trajectory
+figure(42);clf;
+axis([0 1 0 1])
+lenTraj=101;
+h=imfreehand();
+xyTraj=h.getPosition();
+xyTrajSubsamp=resample(xyTraj,lenTraj,length(xyTraj));
 
-
-
-
-
-
+t_in=5;
+f=@(x) tanh(x);%sigmoid or tanh
+subint=1;
+dt_down=0.25;
+t_samp=(0:dt_down:max(t_in))';
+L1=f(nmat1')*xyTrajSubsamp;
+L2=f(nmat2')*L1;
+[solCoeff,~]=callMinSnap2D([t_samp L2],t_samp,subint);
+[xop,yop]=processSolCoeff(t_samp,solCoeff,0.05);
+[xop' yop']-xyTrajSubsamp
 
 
 
